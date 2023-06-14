@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, status
 from pydantic import BaseModel
 from typing import Text, Optional
 from uuid import uuid4 as uuid
@@ -37,14 +37,14 @@ def get_product(product_id: str):
 def save_product(product: Product):
     product.id = str(uuid())
     products.append(product.dict())
-    return products[-1]
+    return products[-1], status.HTTP_201_CREATED
 
 @app.delete("/inventory/{product_id}")
-def delete_product(product_id:str):
+def delete_product(product_id: str):
     for index, product in enumerate(products):
         if product["id"] == product_id:
             products.pop(index)
-            return {"message": "Product deleted"}
+            return {"message": "Product deleted"}, status.HTTP_204_NO_CONTENT
     raise HTTPException(status_code=404, detail="Product not found")
 
 @app.put("/inventory/{product_id}")
